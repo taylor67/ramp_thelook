@@ -12,6 +12,13 @@ view: users {
     sql: ${TABLE}.age ;;
   }
 
+  dimension: age_tier {
+    type: tier
+    tiers: [20, 30, 40, 50, 60, 70, 80]
+    sql: ${age} ;;
+    style:  integer
+  }
+
   dimension: city {
     type: string
     sql: ${TABLE}.city ;;
@@ -57,6 +64,11 @@ view: users {
     sql: ${TABLE}.last_name ;;
   }
 
+  dimension: full_name {
+    type: string
+    sql: CONCAT(${first_name}, ' ', ${last_name}) ;;
+  }
+
   dimension: latitude {
     type: number
     sql: ${TABLE}.latitude ;;
@@ -65,6 +77,12 @@ view: users {
   dimension: longitude {
     type: number
     sql: ${TABLE}.longitude ;;
+  }
+
+  dimension: location {
+    type: location
+    sql_latitude: ${latitude};;
+    sql_longitude: ${longitude} ;;
   }
 
   dimension: state {

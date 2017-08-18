@@ -31,6 +31,9 @@ explore: inventory_items {
 }
 
 explore: order_items {
+  # The following 2 lines make the extension explore work (returned_order_items).
+  view_name: order_items
+  from: order_items
   label: "Orders, Backlog, and Users"
   join: users {
     type: left_outer
@@ -55,6 +58,11 @@ explore: order_items {
     sql_on: ${products.distribution_center_id} = ${distribution_centers.id} ;;
     relationship: many_to_one
   }
+}
+explore: returned_order_items {
+  extends: [order_items]
+  label: "Returned Orders, Backlog, and Users"
+  sql_always_where: ${status}="Returned" ;;
 }
 
 explore: products {
