@@ -31,6 +31,7 @@ explore: inventory_items {
 }
 
 explore: order_items {
+  label: "Orders, Backlog, and Users"
   join: users {
     type: left_outer
     sql_on: ${order_items.user_id} = ${users.id} ;;
