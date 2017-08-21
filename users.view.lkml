@@ -43,6 +43,10 @@ view: users {
     ]
     sql: ${TABLE}.created_at ;;
   }
+  dimension: new_user {
+    type: yesno
+    sql: created_at >= DATEADD(year,-1,GETDATE())  ;;
+  }
 
   dimension: email {
     type: string
@@ -104,4 +108,30 @@ view: users {
     type: count
     drill_fields: [id, first_name, last_name, events.count, order_items.count]
   }
+
+  measure:  average_age {
+    type:  average
+    sql: ${TABLE}.age ;;
+    drill_fields: [detail*]
+  }
+
+  measure: count_usa {
+    type: count
+    filters: {
+      field: country
+      value: "USA"
+    }
+  }
+
+  measure: count_uk {
+    type: count
+    filters: {
+      field: country
+      value: "UK"
+    }
+  }
+
+  set: detail {
+    fields: [id, full_name, country, gender]
+    }
 }

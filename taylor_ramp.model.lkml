@@ -6,13 +6,26 @@ include: "*.view"
 # include all the dashboards
 include: "*.dashboard"
 
-explore: distribution_centers {}
+explore: distribution_centers {
+  join: products {
+    type: left_outer
+    sql_on: ${distribution_centers.id}=${products.distribution_center_id} ;;
+    relationship: one_to_many
+    fields: [products.count]
+  }
+}
 
 explore: events {
   join: users {
     type: left_outer
     sql_on: ${events.user_id} = ${users.id} ;;
     relationship: many_to_one
+  }
+  always_filter: {
+    filters: {
+      field: traffic_source
+      value: "Display"
+    }
   }
 }
 
@@ -44,11 +57,11 @@ explore: order_items {
   join: inventory_items {
     type: left_outer
     sql_on: ${order_items.inventory_item_id} = ${inventory_items.id} ;;
-    relationship: many_to_one
+    relationship: one_to_one
   }
 
   join: products {
-    type: left_outer
+    type: inner
     sql_on: ${inventory_items.product_id} = ${products.id} ;;
     relationship: many_to_one
   }
@@ -60,9 +73,10 @@ explore: order_items {
   }
 }
 explore: returned_order_items {
+  view_label: "Returned Order Items"
   extends: [order_items]
   label: "Returned Orders, Backlog, and Users"
-  sql_always_where: ${status}="Returned" ;;
+  sql_always_where: ${status}='Returned' ;;
 }
 
 explore: products {
@@ -74,3 +88,13 @@ explore: products {
 }
 
 explore: users {}
+
+# explore: inactive_users {
+#   from: users
+#   join: order_items {
+#     type: left_outer
+#     sql_on: ${inactive_users.id} = ${order_items.user_id} ;;
+#     relationship: one_to_many
+#   }
+#   sql_always_where: ${order_items.order_id} IS NULL ;;
+# }
