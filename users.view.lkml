@@ -70,7 +70,7 @@ view: users {
 
   dimension: full_name {
     type: string
-    sql: CONCAT(${first_name}, ' ', ${last_name}) ;;
+    sql: INITCAP(${first_name}||' '||${last_name}) ;;
   }
 
   dimension: latitude {

@@ -7,7 +7,7 @@ view: order_items {
     sql: ${TABLE}.id ;;
   }
 
-  dimension_group: created {
+  dimension_group: created_at {
     type: time
     timeframes: [
       raw,
@@ -65,6 +65,18 @@ view: order_items {
     sql: ${TABLE}.sale_price ;;
   }
 
+  dimension: gross_margin {
+    type: number
+    value_format_name: usd
+    sql: ${order_items.sale_price}-${inventory_items.cost} ;;
+  }
+
+  dimension: item_gross_margin_percentage {
+    type: number
+    value_format_name: percent_2
+    sql: (${order_items.sale_price}-${inventory_items.cost})/  ;;
+  }
+
   dimension_group: shipped {
     type: time
     timeframes: [
@@ -100,6 +112,39 @@ view: order_items {
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  ##########  Repeat order facts  ##########
+
+  dimension: has_subsequent_order {
+    type: yesno
+    view_label: "Repeat Purchase Facts"
+    sql: ${repeat_purchase_facts.days_until_next_order} <0 ;;
+  }
+
+  dimension: has_subsequent_order_within_30d {
+    type: yesno
+    view_label: "Repeat Purchase Facts"
+    sql: ${repeat_purchase_facts.days_until_next_order} <=30 ;;
+  }
+
+  measure: count_has_subsequent_order_within_30d {
+    type: count_distinct
+    view_label: "Repeat Purchase Facts"
+    sql: ${order_items.order_id} ;;
+
+    filters: {
+      field: has_subsequent_order_within_30d
+      value: "Yes"
+    }
+  }
+
+  measure: 30d_repeat_purchase_rate {
+    description: "The percentage of customers who purchase again within 30 days"
+    view_label: "Repeat Purchase Facts"
+    type: number
+    value_format_name:  percent_1
+    sql: 1* ${count_has_subsequent_order_within_30d}/${count} ;;
   }
 
   # ----- Sets of fields for drilling ------

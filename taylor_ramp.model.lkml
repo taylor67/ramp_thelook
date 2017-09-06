@@ -71,6 +71,19 @@ explore: order_items {
     sql_on: ${products.distribution_center_id} = ${distribution_centers.id} ;;
     relationship: many_to_one
   }
+
+  join: order_facts {
+    type: left_outer
+    sql_on: ${order_items.order_id}=${order_facts.order_id} ;;
+    relationship: many_to_one
+  }
+
+  join: repeat_purchase_facts {
+    type: left_outer
+    sql_on: ${order_items.order_id}= ${repeat_purchase_facts.order_id} ;;
+    relationship: many_to_one
+  }
+
 }
 explore: returned_order_items {
   view_label: "Returned Order Items"
@@ -98,3 +111,36 @@ explore: users {}
 #   }
 #   sql_always_where: ${order_items.order_id} IS NULL ;;
 # }
+
+explore: user_order_facts {
+  join: users {
+    type: inner
+    sql_on: ${users.id}=${user_order_facts.id} ;;
+    relationship: one_to_one
+  }
+
+  join: order_items {
+    type: left_outer
+    sql_on: ${order_items.user_id}=${users.id} ;;
+    relationship: one_to_many
+  }
+
+  join: inventory_items {
+    type: left_outer
+    sql_on: ${order_items.inventory_item_id} = ${inventory_items.id} ;;
+    relationship: one_to_one
+    fields: []
+  }
+
+  join: products {
+    type: inner
+    sql_on: ${inventory_items.product_id} = ${products.id} ;;
+    relationship: many_to_one
+  }
+
+  join: repeat_purchase_facts {
+    type: left_outer
+    sql_on: ${order_items.order_id}= ${repeat_purchase_facts.order_id} ;;
+    relationship: many_to_one
+  }
+}
