@@ -29,6 +29,7 @@ view: events {
       raw,
       time,
       date,
+      day_of_week,
       week,
       month,
       quarter,
@@ -82,7 +83,7 @@ view: events {
     sql: ${TABLE}.traffic_source ;;
   }
 
-  dimension: uri {
+  dimension: url {
     type: string
     sql: ${TABLE}.uri ;;
   }
@@ -96,6 +97,13 @@ view: events {
   dimension: zip {
     type: zipcode
     sql: ${TABLE}.zip ;;
+  }
+
+  dimension: viewed_product_id {
+    type: number
+    sql: CASE WHEN ${event_type}='Product' THEN right(${url},len(${url})-9)
+      END ;;
+    hidden: yes
   }
 
   measure: count {

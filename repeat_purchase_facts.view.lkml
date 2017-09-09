@@ -9,7 +9,10 @@ view: repeat_purchase_facts {
         left join order_items as repeat_order_items
             on repeat_order_items.user_id=order_items.user_id
             and repeat_order_items.created_at>order_items.created_at
-        group by order_items.order_id;;
+        group by order_items.order_id,
+                repeat_order_items.order_id,
+                order_items.created_at,
+                repeat_order_items.created_at;;
   }
 
   dimension: order_id {

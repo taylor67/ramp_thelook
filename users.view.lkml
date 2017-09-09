@@ -30,7 +30,7 @@ view: users {
     sql: ${TABLE}.country ;;
   }
 
-  dimension_group: created {
+  dimension_group: created_at {
     type: time
     timeframes: [
       raw,
@@ -87,6 +87,13 @@ view: users {
     type: location
     sql_latitude: ${latitude};;
     sql_longitude: ${longitude} ;;
+  }
+
+  dimension: location_approximate {
+    type: location
+    drill_fields: [location]
+    sql_latitude: ROUND(${TABLE}.latitude, 1) ;;
+    sql_longitude: ROUND(${TABLE}.longitude, 1) ;;
   }
 
   dimension: state {

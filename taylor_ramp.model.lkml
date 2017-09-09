@@ -21,11 +21,18 @@ explore: events {
     sql_on: ${events.user_id} = ${users.id} ;;
     relationship: many_to_one
   }
-  always_filter: {
-    filters: {
-      field: traffic_source
-      value: "Display"
-    }
+
+  join: sessions {
+    type: left_outer
+    sql_on: ${events.session_id}=${sessions.session_id} ;;
+    relationship: many_to_one
+  }
+
+  join: viewed_products {
+    from: products
+    type: left_outer
+    sql_on: ${events.viewed_product_id}=${viewed_products.id};;
+    relationship: many_to_one
   }
 }
 
@@ -84,6 +91,12 @@ explore: order_items {
     relationship: many_to_one
   }
 
+  join: user_order_facts {
+    type: inner
+    sql_on: ${users.id}= ${user_order_facts.user_id} ;;
+    relationship: one_to_one
+  }
+
 }
 explore: returned_order_items {
   view_label: "Returned Order Items"
@@ -115,7 +128,7 @@ explore: users {}
 explore: user_order_facts {
   join: users {
     type: inner
-    sql_on: ${users.id}=${user_order_facts.id} ;;
+    sql_on: ${users.id}=${user_order_facts.user_id} ;;
     relationship: one_to_one
   }
 

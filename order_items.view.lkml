@@ -15,6 +15,8 @@ view: order_items {
       date,
       week,
       month,
+      month_num,
+      month_name,
       quarter,
       year
     ]
@@ -98,15 +100,33 @@ view: order_items {
 
   dimension: user_id {
     type: number
-    # hidden: yes
+    hidden: yes
     sql: ${TABLE}.user_id ;;
   }
 
-  measure: sum {
+  dimension: months_since_signup {
+    type: number
+    sql: datediff('month', ${users.created_at_raw}, ${created_at_raw}) ;;
+    description: "Months between date of given purchase and users first purchase. Metric of how long buyer has been customer."
+  }
+
+  measure: total_sale_price {
     type: sum
     sql: ${sale_price} ;;
     value_format_name: usd
     drill_fields: [detail*]
+  }
+
+  measure: average_sale_price {
+    type: average
+    sql: ${sale_price} ;;
+    value_format_name: usd
+  }
+
+  measure: average_spend_per_user {
+    type: number
+    sql: 1 * ${total_sale_price}/NULLIF(${users.count}, 0) ;;
+    value_format_name: usd
   }
 
   measure: count {
@@ -144,7 +164,7 @@ view: order_items {
     view_label: "Repeat Purchase Facts"
     type: number
     value_format_name:  percent_1
-    sql: 1* ${count_has_subsequent_order_within_30d}/${count} ;;
+    sql: 1.0 * ${count_has_subsequent_order_within_30d}/NULLIF(${count},0) ;;
   }
 
   # ----- Sets of fields for drilling ------

@@ -4,6 +4,7 @@ view: order_facts {
                 , order_id
                 , count(*) as number_of_items
                 , min(created_at) as created_at
+                , sum(sale_price) as order_amount
                 , rank() over (PARTITION BY user_id ORDER BY created_at) as rank_order_number
           from order_items
           group by order_id, user_id, created_at ;;
@@ -12,6 +13,7 @@ view: order_facts {
   dimension: order_id {
     type: number
     sql: ${TABLE}.order_id ;;
+    primary_key: yes
     hidden: yes
   }
 
@@ -31,7 +33,7 @@ view: order_facts {
     sql: ${rank_order_number}=1 ;;
   }
 
-  dimension_group: created {
+  dimension_group: created_at {
     type: time
     timeframes: [
       raw,
@@ -46,6 +48,17 @@ view: order_facts {
     hidden:  yes
   }
 
+  dimension: order_amount {
+    type: number
+    sql: ${TABLE}.order_amount ;;
+  }
+
+  measure: average_order_amount {
+    type: average
+    sql: ${order_amount} ;;
+    value_format_name: usd
+  }
+
   measure: first_order_count {
     type: count_distinct
     sql: ${order_id} ;;
@@ -55,4 +68,10 @@ view: order_facts {
       value: "Yes"
     }
   }
+
+  measure: count_orders {
+    type: count_distinct
+    sql:  ${TABLE}.order_id;;
+  }
+
 }
